@@ -23,31 +23,35 @@ public class InventoryClient {
 	}
 
 	public List<Product> callViewProductsByCategory(String category) {
-		String query = String.format(
-				"query GetAllProductsByCategory {\r\n"
-				+ "    getAllProductsByCategory(category: \"%s\") {\r\n"
-				+ "        price\r\n"
-				+ "        stock\r\n"
-				+ "        categoryMaster {\r\n"
-				+ "            categoryName\r\n"
-				+ "            categoryId\r\n"
-				+ "        }\r\n"
-				+ "        productName\r\n"
-				+ "        productId\r\n"
-				+ "    }\r\n"
-				+ "}\r\n"
-				+ "",
-				category);
+		String query = """
+				query GetAllProductsByCategory {
+				    getAllProductsByCategory(category: "%s") {
+				        price
+				        stock
+				        categoryMaster {
+				            categoryName
+				            categoryId
+				        }
+				        productName
+				        productId
+				    }
+				}
+				""".formatted(category);
 		return graphQlClient.document(query).retrieve("getAllProductsByCategory").toEntityList(Product.class).block();
 	}
 
-	// WRITE Operations
 	public Product callReceiveNewShipment(Product product) {
-		String query = String.format("mutation ReceiveNewShipment {\r\n"
-				+ "    receiveNewShipment(productId: \"%s\", stock: %d) {\r\n" + "        productName\r\n"
-				+ "        price\r\n" + "        stock\r\n" + "    }\r\n" + "}\r\n" + "", product.getProductId(),
-				product.getStock());
+		String query = """
+				mutation ReceiveNewShipment {
+				    receiveNewShipment(productId: "%s", stock: %d) {
+				        productName
+				        price
+				        stock
+				    }
+				}
+				""".formatted(product.getProductId(), product.getStock());
 
 		return graphQlClient.document(query).retrieve("receiveNewShipment").toEntity(Product.class).block();
 	}
+
 }
